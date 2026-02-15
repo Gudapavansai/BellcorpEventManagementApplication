@@ -191,55 +191,84 @@ const Home = () => {
                     initial="hidden"
                     animate="visible"
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl hover:border-purple-100 transition-all duration-300 flex flex-col h-full"
+                    className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-2xl hover:border-purple-200 hover:-translate-y-2 transition-all duration-500 flex flex-col h-full relative"
                   >
-                    <div className="relative h-48 overflow-hidden">
+                    {/* Status Badge */}
+                    <div className="absolute top-4 left-4 z-30">
+                       <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg backdrop-blur-md ${
+                         event.isFull 
+                         ? 'bg-red-500/90 text-white' 
+                         : event.availableSeats < 50 
+                         ? 'bg-orange-500/90 text-white' 
+                         : 'bg-emerald-500/90 text-white'
+                       }`}>
+                         {event.isFull ? 'Sold Out' : event.availableSeats < 50 ? 'Almost Full' : 'Registration Open'}
+                       </div>
+                    </div>
+
+                    {/* Image Container */}
+                    <div className="relative h-56 overflow-hidden">
                       <img 
-                        src={event.image} 
+                        src={event.image || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000'} 
                         alt={event.name} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         onError={(e) => {
-                          e.target.parentElement.parentElement.style.display = 'none';
+                          e.target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1000';
                         }}
                       />
-                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-purple-700 uppercase tracking-wide shadow-sm">
-                        {event.category}
-                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </div>
                     
-                    <div className="p-5 flex-grow flex flex-col">
-                      <h3 className="text-lg font-bold text-slate-900 mb-2 line-clamp-1 group-hover:text-purple-700 transition-colors">
+                    {/* Content Section */}
+                    <div className="p-6 flex-grow flex flex-col bg-white">
+                      <div className="flex items-center gap-2 mb-3">
+                         <span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold rounded-lg uppercase tracking-wider border border-purple-100">
+                           {event.category}
+                         </span>
+                         <span className="text-slate-300">•</span>
+                         <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                            <Calendar size={12} className="text-purple-600" />
+                            {new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                         </div>
+                      </div>
+
+                      <h3 className="text-xl font-extrabold text-slate-900 mb-3 line-clamp-2 leading-tight group-hover:text-purple-700 transition-colors">
                         {event.name}
                       </h3>
                       
-                      <div className="flex items-center gap-2 text-sm text-slate-500 mb-3">
-                        <User size={14} className="text-purple-600" />
-                        <span className="truncate">By {event.organizer}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-                        <Calendar size={14} className="text-purple-600" />
-                        <span>{new Date(event.date).toLocaleDateString()}</span>
+                      <div className="space-y-2 mb-6">
+                        <div className="flex items-center gap-2.5 text-sm text-slate-500 font-medium">
+                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                             <User size={12} className="text-slate-400" />
+                          </div>
+                          <span className="truncate">Hosted by <span className="text-slate-900">{event.organizer}</span></span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2.5 text-sm text-slate-500 font-medium">
+                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                             <MapPin size={12} className="text-slate-400" />
+                          </div>
+                          <span className="truncate" title={event.location}>{event.location}</span>
+                        </div>
                       </div>
 
-                      <div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
-                         <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 max-w-[120px]" title={event.location}>
-                            <MapPin size={12} className="text-gray-400" />
-                            <span className="truncate">{event.location}</span>
+                      <div className="mt-auto pt-5 border-t border-slate-100 flex justify-between items-center">
+                         <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Pass Status</span>
+                            <span className={`text-xs font-bold ${event.isFull ? 'text-red-500' : 'text-slate-900'}`}>
+                               {event.isFull ? 'Waitlisted' : `${event.availableSeats} Seats left`}
+                            </span>
                          </div>
                          <Link 
                           to={`/event/${event._id}`} 
-                          className="text-xs font-bold text-purple-700 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-full transition-colors"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-900 text-white group-hover:bg-purple-700 text-xs font-black rounded-xl transition-all duration-300 transform active:scale-95 shadow-md hover:shadow-purple-700/20"
                          >
-                            View Details
+                            Book Spot
                          </Link>
                       </div>
                     </div>
                   </motion.div>
                 ))}
-                
-                {/* Host Your Own Event Card */}
-
               </AnimatePresence>
             </motion.div>
             

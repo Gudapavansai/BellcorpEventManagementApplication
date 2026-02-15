@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import { Calendar, MapPin, Users, Tag, Image as ImageIcon, FileText, Send, Building, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const CreateEvent = () => {
+  const { user } = useContext(AuthContext); // Get user context
   const [formData, setFormData] = useState({
     name: '',
-    organizer: '',
+    organizer: user?.name || '', // Pre-fill with user name
     location: '',
     date: '',
     description: '',

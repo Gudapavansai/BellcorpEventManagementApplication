@@ -9,6 +9,11 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add an organizer'],
     },
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     location: {
         type: String,
         required: [true, 'Please add a location'],

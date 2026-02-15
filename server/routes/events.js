@@ -187,7 +187,8 @@ router.post('/', protect, asyncHandler(async (req, res) => {
         description,
         capacity,
         image: image || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1600',
-        category
+        category,
+        user: req.user.id
     });
 
     res.status(201).json({ success: true, data: event });

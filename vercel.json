@@ -6,8 +6,8 @@
             "destination": "https://bellcorpeventmanagementapplication.onrender.com/api/:path*"
         },
         {
-            "source": "/(.*)",
-            "destination": "/client/dist/$1"
+            "source": "/assets/(.*)",
+            "destination": "/client/dist/assets/$1"
         },
         {
             "source": "/(.*)",

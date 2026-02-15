@@ -22,6 +22,8 @@ const ProtectedRoute = ({ children }) => {
 
 import Footer from './components/Footer';
 
+import CreateEvent from './pages/CreateEvent';
+
 function App() {
   return (
     <AuthProvider>
@@ -53,6 +55,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/create-event" 
+                element={
+                  <ProtectedRoute>
+                    <CreateEvent />
                   </ProtectedRoute>
                 } 
               />

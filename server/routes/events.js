@@ -169,6 +169,30 @@ router.get('/:id', asyncHandler(async (req, res) => {
     });
 }));
 
+// @desc    Create a new event
+// @route   POST /api/events
+// @access  Private
+router.post('/', protect, asyncHandler(async (req, res) => {
+    const { name, organizer, location, date, description, capacity, image, category } = req.body;
+
+    if (!name || !organizer || !location || !date || !description || !capacity || !category) {
+        return res.status(400).json({ success: false, message: 'Please provide all required fields' });
+    }
+
+    const event = await Event.create({
+        name,
+        organizer,
+        location,
+        date,
+        description,
+        capacity,
+        image: image || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1600',
+        category
+    });
+
+    res.status(201).json({ success: true, data: event });
+}));
+
 // @desc    Register for an event
 router.post('/:id/register', protect, asyncHandler(async (req, res) => {
     const event = await Event.findById(req.params.id);

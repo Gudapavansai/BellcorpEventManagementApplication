@@ -61,6 +61,9 @@ const Navbar = () => {
                 <Link to="/dashboard" className={`text-base font-medium transition-colors duration-200 flex items-center gap-2 ${isActive('/dashboard') ? 'text-purple-700' : 'text-gray-600 hover:text-purple-700'}`}>
                   My Events
                 </Link>
+                <Link to="/create-event" className={`text-base font-medium transition-colors duration-200 flex items-center gap-2 ${isActive('/create-event') ? 'text-purple-700' : 'text-gray-600 hover:text-purple-700'}`}>
+                  Host Event
+                </Link>
                 <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
                     <div className="w-6 h-6 rounded-full bg-purple-700 text-white flex items-center justify-center text-xs font-bold">
@@ -114,6 +117,9 @@ const Navbar = () => {
                   <>
                     <Link to="/dashboard" className={`block px-4 py-3 rounded-lg text-lg font-medium transition-colors ${isActive('/dashboard') ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-700'}`}>
                       My Events
+                    </Link>
+                    <Link to="/create-event" className={`block px-4 py-3 rounded-lg text-lg font-medium transition-colors ${isActive('/create-event') ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-700'}`}>
+                      Host Event
                     </Link>
                     <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100 my-2">
                       <div className="w-8 h-8 rounded-full bg-purple-700 text-white flex items-center justify-center text-sm font-bold">

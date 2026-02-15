@@ -30,10 +30,24 @@ function App() {
           <Navbar />
           <main className="flex-grow pt-20">
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/event/:id" element={<EventDetails />} />
+              <Route 
+                path="/event/:id" 
+                element={
+                  <ProtectedRoute>
+                    <EventDetails />
+                  </ProtectedRoute>
+                } 
+              />
               <Route 
                 path="/dashboard" 
                 element={

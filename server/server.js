@@ -10,11 +10,24 @@ dotenv.config();
 // Connect to database
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
+        if (!process.env.MONGO_URI) {
+            throw new Error('MONGO_URI is not defined in .env file');
+        }
+
+        // Set mongoose options to handle buffering
+        mongoose.set('bufferCommands', false); // Disable buffering so we get immediate errors if not connected
+
+        const conn = await mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+        });
+
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (err) {
-        console.error(`Error: ${err.message}`);
-        console.warn('Running in offline mode (mock data will be used if implemented)');
+        console.error(`Database Connection Error: ${err.message}`);
+        if (process.env.NODE_ENV === 'production') {
+            process.exit(1); // In production, we need the DB
+        }
+        console.warn('Running in development mode without active DB connection. API requests will fail until DB is connected.');
     }
 };
 
@@ -31,6 +44,21 @@ if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
     app.use(morgan('dev'));
 }
 
+// Database connectivity middleware
+app.use((req, res, next) => {
+    if (req.path === '/' || req.path.startsWith('/api-docs')) {
+        return next();
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({
+            success: false,
+            message: 'Database connection is not established. Please check your MONGO_URI and IP whitelisting in MongoDB Atlas.'
+        });
+    }
+    next();
+});
+
 // Route files
 const auth = require('./routes/auth');
 const events = require('./routes/events');
@@ -45,9 +73,9 @@ app.get('/', (req, res) => {
     res.status(200).json({
         success: true,
         message: 'BellCrop Event Management API is running',
-        version: '1.0.0',
+        version: '1.0.1',
         environment: process.env.NODE_ENV || 'development',
-        database: mongoose.connection.readyState === 1 ? 'Connected' : 'Offline',
+        database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
         endpoints: {
             auth: '/api/auth',
             events: '/api/events'
@@ -78,7 +106,7 @@ const startServer = async () => {
 
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (err, promise) => {
-        console.log(`Error: ${err.message}`);
+        console.log(`Unhandled Rejection: ${err.message}`);
         server.close(() => process.exit(1));
     });
 };

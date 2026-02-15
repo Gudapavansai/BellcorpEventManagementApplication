@@ -6,12 +6,11 @@ const jwt = require('jsonwebtoken');
 const { protect } = require('../middleware/auth');
 
 /**
- * @desc    Standardized Token Response Helper
+ * TOKEN GENERATOR
  */
-const sendTokenResponse = (user, statusCode, res) => {
-    // Create token
+const sendToken = (user, statusCode, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE || '30d',
+        expiresIn: process.env.JWT_EXPIRE || '30d'
     });
 
     res.status(statusCode).json({
@@ -20,105 +19,81 @@ const sendTokenResponse = (user, statusCode, res) => {
         user: {
             id: user._id,
             name: user.name,
-            email: user.email,
-            createdAt: user.createdAt
+            email: user.email
         }
     });
 };
 
 /**
+ * @desc    REGISTER NEW USER
  * @route   POST /api/auth/register
- * @desc    Register a new user
- * @access  Public
  */
 router.post('/register', asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-        return res.status(400).json({ success: false, message: 'A user with this email already exists' });
+    if (!name || !email || !password) {
+        return res.status(400).json({ success: false, message: 'Please provide name, email and password' });
     }
 
-    // Create user
-    const user = await User.create({
-        name,
-        email,
-        password,
-    });
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+        return res.status(400).json({ success: false, message: 'This email is already registered' });
+    }
 
-    if (user) {
-        sendTokenResponse(user, 201, res);
-    } else {
-        res.status(400).json({ success: false, message: 'Invalid user data received' });
+    // Create user in DB
+    try {
+        const user = await User.create({ name, email, password });
+        sendToken(user, 201, res);
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
     }
 }));
 
 /**
+ * @desc    LOGIN USER
  * @route   POST /api/auth/login
- * @desc    Authenticate user & get token
- * @access  Public
  */
 router.post('/login', asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    // Validate email & password
     if (!email || !password) {
-        return res.status(400).json({ success: false, message: 'Please enter both email and password' });
+        return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
     // Check for user
     const user = await User.findOne({ email }).select('+password');
-
     if (!user) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        return res.status(401).json({ success: false, message: 'Invalid credentials. Please check your email.' });
     }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
-
     if (!isMatch) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        return res.status(401).json({ success: false, message: 'Invalid credentials. Incorrect password.' });
     }
 
-    sendTokenResponse(user, 200, res);
+    sendToken(user, 200, res);
 }));
 
 /**
+ * @desc    GET CURRENT USER (Restore Session)
  * @route   GET /api/auth/me
- * @desc    Get current logged in user profile
- * @access  Private
  */
 router.get('/me', protect, asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id);
-
-    if (user) {
-        res.status(200).json({
-            success: true,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                createdAt: user.createdAt
-            }
-        });
-    } else {
-        res.status(404).json({ success: false, message: 'User not found' });
+    if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
     }
+    res.status(200).json({ success: true, user });
 }));
 
 /**
- * @route   GET /api/auth/users
- * @desc    Get all users (Debug/Admin verification)
- * @access  Public
+ * @desc    DEBUG: LIST ALL USERS
  */
 router.get('/users', asyncHandler(async (req, res) => {
-    const users = await User.find({}).select('-password').sort('-createdAt');
-    res.status(200).json({
-        success: true,
-        count: users.length,
-        users
-    });
+    const users = await User.find({}).select('-password');
+    res.status(200).json({ success: true, count: users.length, users });
 }));
 
 module.exports = router;

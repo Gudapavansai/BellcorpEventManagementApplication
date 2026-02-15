@@ -7,89 +7,78 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize Auth: Check for token and verify session
   useEffect(() => {
-    const initAuth = async () => {
+    const checkUser = async () => {
       const token = localStorage.getItem('token');
       if (token) {
-        // Set default header for all subsequent requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         try {
           const res = await axios.get('/api/auth/me');
           if (res.data.success) {
             setUser(res.data.user);
           } else {
-            handleLogout();
+            logout();
           }
         } catch (err) {
-          console.error("Session verification failed:", err.response?.data?.message || err.message);
-          handleLogout();
+          console.error("Session check failed:", err.response?.data?.message || err.message);
+          logout();
         }
-      } else {
-        setLoading(false);
       }
+      setLoading(false);
     };
-    initAuth().finally(() => setLoading(false));
+    checkUser();
   }, []);
 
   /**
-   * Login Function
+   * LOGIN
    */
   const login = async (email, password) => {
     try {
+      console.log("Attempting Login for:", email);
       const res = await axios.post('/api/auth/login', { email, password });
+      
       if (res.data.success) {
-        const { token, user } = res.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        setUser(user);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        return { success: true, user };
+        localStorage.setItem('token', res.data.token);
+        setUser(res.data.user);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+        return { success: true };
       }
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      console.error("Login Error Details:", err.response?.data || err.message);
+      const message = err.response?.data?.message || 'Server Error: Could not connect to the login service.';
       return { success: false, message };
     }
   };
 
   /**
-   * Register Function
+   * REGISTER
    */
   const register = async (name, email, password) => {
     try {
+      console.log("Attempting Registration for:", email);
       const res = await axios.post('/api/auth/register', { name, email, password });
+      
       if (res.data.success) {
-        const { token, user } = res.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        setUser(user);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        return { success: true, user };
+        localStorage.setItem('token', res.data.token);
+        setUser(res.data.user);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+        return { success: true };
       }
     } catch (err) {
-      const message = err.response?.data?.message || 'Registration failed. Try a different email.';
+      console.error("Registration Error Details:", err.response?.data || err.message);
+      const message = err.response?.data?.message || 'Server Error: Database might be offline or Email already taken.';
       return { success: false, message };
     }
   };
 
-  /**
-   * Logout Function
-   */
-  const handleLogout = () => {
+  const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     setUser(null);
     delete axios.defaults.headers.common['Authorization'];
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      login, 
-      register, 
-      logout: handleLogout 
-    }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

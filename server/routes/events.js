@@ -213,6 +213,18 @@ router.delete('/registration/:id', protect, asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: 'Registration cancelled' });
 }));
 
+// @desc    Get all registrations in the system (Debug/Admin)
+// @route   GET /api/events/all-registrations
+// @access  Public (for verification)
+router.get('/all-registrations', asyncHandler(async (req, res) => {
+    const registrations = await Registration.find({}).populate('user', 'name email').populate('event', 'name date');
+    res.status(200).json({
+        success: true,
+        count: registrations.length,
+        data: registrations
+    });
+}));
+
 
 
 module.exports = router;

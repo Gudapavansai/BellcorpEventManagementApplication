@@ -78,4 +78,16 @@ router.get('/me', protect, asyncHandler(async (req, res) => {
     });
 }));
 
+// @desc    Get all users (Debug/Admin)
+// @route   GET /api/auth/users
+// @access  Public (for verification)
+router.get('/users', asyncHandler(async (req, res) => {
+    const users = await User.find({}).select('-password');
+    res.status(200).json({
+        success: true,
+        count: users.length,
+        users
+    });
+}));
+
 module.exports = router;

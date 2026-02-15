@@ -10,24 +10,32 @@ dotenv.config();
 // Connect to database
 const connectDB = async () => {
     try {
-        if (!process.env.MONGO_URI) {
-            throw new Error('MONGO_URI is not defined in .env file');
+        const mongoURI = process.env.MONGO_URI;
+        
+        if (!mongoURI) {
+            console.error('================================================================');
+            console.error('CRITICAL ERROR: MONGO_URI is not defined in environment vars!');
+            console.error('If you are on Render: Go to Settings -> Environment and add MONGO_URI');
+            console.error('================================================================');
+            if (process.env.NODE_ENV === 'production') {
+                process.exit(1);
+            }
+            return;
         }
 
         // Set mongoose options to handle buffering
-        mongoose.set('bufferCommands', false); // Disable buffering so we get immediate errors if not connected
+        mongoose.set('bufferCommands', false); 
 
-        const conn = await mongoose.connect(process.env.MONGO_URI, {
-            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+        const conn = await mongoose.connect(mongoURI, {
+            serverSelectionTimeoutMS: 5000,
         });
-
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        
+        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     } catch (err) {
-        console.error(`Database Connection Error: ${err.message}`);
+        console.error(`❌ Database Connection Error: ${err.message}`);
         if (process.env.NODE_ENV === 'production') {
-            process.exit(1); // In production, we need the DB
+            process.exit(1);
         }
-        console.warn('Running in development mode without active DB connection. API requests will fail until DB is connected.');
     }
 };
 
@@ -70,12 +78,19 @@ app.use('/api/events', events);
 
 // Root Route - Health Check & Info
 app.get('/', (req, res) => {
+    const dbStatus = {
+        0: 'Disconnected',
+        1: 'Connected',
+        2: 'Connecting',
+        3: 'Disconnecting'
+    };
+    
     res.status(200).json({
         success: true,
         message: 'BellCrop Event Management API is running',
-        version: '1.0.1',
+        version: '1.0.2',
         environment: process.env.NODE_ENV || 'development',
-        database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+        database: dbStatus[mongoose.connection.readyState],
         endpoints: {
             auth: '/api/auth',
             events: '/api/events'
@@ -93,20 +108,20 @@ const startServer = async () => {
     await connectDB();
 
     const server = app.listen(PORT, () => {
-        console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+        console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     });
 
     // Handle port errors
     server.on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
-            console.error(`Port ${PORT} is already in use.`);
+            console.error(`❌ Port ${PORT} is already in use.`);
             process.exit(1);
         }
     });
 
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (err, promise) => {
-        console.log(`Unhandled Rejection: ${err.message}`);
+        console.log(`❌ Unhandled Rejection: ${err.message}`);
         server.close(() => process.exit(1));
     });
 };

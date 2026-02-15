@@ -44,7 +44,10 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
     } catch (err) {
-      console.error("Login Error Details:", err.response?.data || err.message);
+      console.error("Login FULL Error:", err);
+      if (!err.response) {
+        return { success: false, message: 'Network Error: Cannot reach the backend. Please check if the Render URL is active.' };
+      }
       const message = err.response?.data?.message || 'Server Error: Could not connect to the login service.';
       return { success: false, message };
     }
@@ -65,7 +68,10 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
     } catch (err) {
-      console.error("Registration Error Details:", err.response?.data || err.message);
+      console.error("Registration FULL Error:", err);
+      if (!err.response) {
+        return { success: false, message: 'Network Error: Database connection pending or Server unreachable.' };
+      }
       const message = err.response?.data?.message || 'Server Error: Database might be offline or Email already taken.';
       return { success: false, message };
     }

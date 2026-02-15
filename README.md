@@ -143,7 +143,7 @@ The backend exposes the following RESTful endpoints:
 ### Events
 *   `GET /api/events` - Get all events (supports query params: search, category, etc.)
 *   `GET /api/events/:id` - Get single event details
-*   `POST /api/events` - Create a new event (Admin)
+*   `POST /api/events` - Create a new event (Private)
 
 ### Registrations
 *   `POST /api/events/:id/register` - Register for an event

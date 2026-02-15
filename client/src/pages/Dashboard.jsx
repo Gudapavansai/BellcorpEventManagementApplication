@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   const fetchMyRegistrations = async () => {
     try {
-      const res = await axios.get('http://localhost:5001/api/events/user/my-registrations');
+      const res = await axios.get('/api/events/user/my-registrations');
       setRegistrations(res.data.data);
       setLoading(false);
     } catch (err) {
@@ -29,7 +29,7 @@ const Dashboard = () => {
   const handleCancelRegistration = async (eventId) => {
     if (window.confirm('Are you sure you want to cancel your registration for this event?')) {
       try {
-        await axios.delete(`http://localhost:5001/api/events/registration/${eventId}`);
+        await axios.delete(`/api/events/registration/${eventId}`);
         fetchMyRegistrations();
       } catch (err) {
         alert(err.response?.data?.message || 'Error cancelling registration');

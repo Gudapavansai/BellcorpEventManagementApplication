@@ -34,7 +34,7 @@ const Home = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5001/api/events', {
+      const res = await axios.get('/api/events', {
         params: {
           category,
           name: search,

@@ -21,7 +21,7 @@ const EventDetails = () => {
 
   const fetchEvent = async () => {
     try {
-      const res = await axios.get(`http://localhost:5001/api/events/${id}`);
+      const res = await axios.get(`/api/events/${id}`);
       setEvent(res.data.data);
       setLoading(false);
     } catch (err) {
@@ -40,7 +40,7 @@ const EventDetails = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/events/${id}/register`);
+      const res = await axios.post(`/api/events/${id}/register`);
       if (res.data.success) {
         setMessage({ type: 'success', text: 'You are officially on the guest list!' });
         fetchEvent(); // Refresh status immediately
@@ -56,7 +56,7 @@ const EventDetails = () => {
     if (window.confirm('Are you sure you want to cancel your registration?')) {
       setRegistering(true);
       try {
-        await axios.delete(`http://localhost:5001/api/events/registration/${id}`);
+        await axios.delete(`/api/events/registration/${id}`);
         setMessage({ type: 'success', text: 'Registration cancelled successfully.' });
         fetchEvent();
       } catch (err) {

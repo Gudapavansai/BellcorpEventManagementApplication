@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         try {
-          const res = await axios.get('http://localhost:5001/api/auth/me');
+          const res = await axios.get('/api/auth/me');
           if (res.data.success) {
             setUser(res.data.data);
           } else {
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await axios.post('http://localhost:5001/api/auth/login', { email, password });
+    const res = await axios.post('/api/auth/login', { email, password });
     if (res.data.success) {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
-    const res = await axios.post('http://localhost:5001/api/auth/register', { name, email, password });
+    const res = await axios.post('/api/auth/register', { name, email, password });
     if (res.data.success) {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));

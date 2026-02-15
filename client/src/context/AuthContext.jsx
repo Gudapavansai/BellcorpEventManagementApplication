@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       if (!err.response) {
         return { success: false, message: 'Network Error: Cannot reach the backend. Please check if the Render URL is active.' };
       }
-      const message = err.response?.data?.message || 'Server Error: Could not connect to the login service.';
+      const message = err.response?.data?.message || err.response?.data?.error || 'Login failed. Please check your credentials.';
       return { success: false, message };
     }
   };
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
       if (!err.response) {
         return { success: false, message: 'Network Error: Database connection pending or Server unreachable.' };
       }
-      const message = err.response?.data?.message || 'Server Error: Database might be offline or Email already taken.';
+      const message = err.response?.data?.message || err.response?.data?.error || 'Registration failed. Try a different email or check fields.';
       return { success: false, message };
     }
   };

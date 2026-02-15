@@ -8,13 +8,26 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-    setLoading(false);
+    const checkUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        try {
+          const res = await axios.get('http://localhost:5001/api/auth/me');
+          if (res.data.success) {
+            setUser(res.data.data);
+          } else {
+            // Token might be invalid/expired
+            logout();
+          }
+        } catch (err) {
+          console.error("Auth check failed:", err);
+          logout();
+        }
+      }
+      setLoading(false);
+    };
+    checkUser();
   }, []);
 
   const login = async (email, password) => {

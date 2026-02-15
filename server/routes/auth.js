@@ -3,6 +3,7 @@ const router = express.Router();
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { protect } = require('../middleware/auth');
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -64,5 +65,17 @@ const sendTokenResponse = (user, statusCode, res) => {
         }
     });
 };
+
+// @desc    Get current logged in user
+// @route   GET /api/auth/me
+// @access  Private
+router.get('/me', protect, asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+        success: true,
+        data: user,
+    });
+}));
 
 module.exports = router;

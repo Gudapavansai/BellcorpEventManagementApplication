@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const morgan = require('morgan');
 
 // Load env vars
 dotenv.config();
@@ -14,7 +15,6 @@ const connectDB = async () => {
     } catch (err) {
         console.error(`Error: ${err.message}`);
         console.warn('Running in offline mode (mock data will be used if implemented)');
-        // process.exit(1); // Keep server running for offline mode
     }
 };
 
@@ -26,6 +26,11 @@ app.use(express.json());
 // Enable CORS
 app.use(cors());
 
+// Dev logging middleware
+if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+    app.use(morgan('dev'));
+}
+
 // Route files
 const auth = require('./routes/auth');
 const events = require('./routes/events');
@@ -34,6 +39,22 @@ const errorHandler = require('./middleware/error');
 // Mount routers
 app.use('/api/auth', auth);
 app.use('/api/events', events);
+
+// Root Route - Health Check & Info
+app.get('/', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'BellCrop Event Management API is running',
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
+        database: mongoose.connection.readyState === 1 ? 'Connected' : 'Offline',
+        endpoints: {
+            auth: '/api/auth',
+            events: '/api/events'
+        },
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Error handler (must be after routes)
 app.use(errorHandler);
@@ -50,7 +71,7 @@ const startServer = async () => {
     // Handle port errors
     server.on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
-            console.error(`Port ${PORT} is already in use. Try killing the process or changing the port in .env`);
+            console.error(`Port ${PORT} is already in use.`);
             process.exit(1);
         }
     });
@@ -58,7 +79,6 @@ const startServer = async () => {
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (err, promise) => {
         console.log(`Error: ${err.message}`);
-        // Close server & exit process
         server.close(() => process.exit(1));
     });
 };

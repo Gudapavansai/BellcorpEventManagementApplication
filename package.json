@@ -6,8 +6,7 @@
         "server"
     ],
     "scripts": {
-        "client-install": "npm install --prefix client",
-        "server-install": "npm install --prefix server",
-        "build": "npm run client-install && npm run build --prefix client"
+        "install-all": "npm install && npm install --prefix client && npm install --prefix server",
+        "build": "npm run build --prefix client"
     }
 }

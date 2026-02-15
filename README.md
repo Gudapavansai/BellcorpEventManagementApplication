@@ -152,6 +152,32 @@ The backend exposes the following RESTful endpoints:
 
 ---
 
+## 🚀 Deployment Guide
+
+This application is designed for a split-deployment model using **Vercel** for the frontend and **Render** for the backend.
+
+### 1. Backend (Render)
+1.  Connect your GitHub repository to [Render](https://render.com).
+2.  Create a new **Web Service**.
+3.  Set **Root Directory** to `server`.
+4.  **Build Command:** `npm install`
+5.  **Start Command:** `node server.js`
+6.  **Environment Variables:**
+    *   `MONGO_URI`: Your MongoDB Connection String.
+    *   `JWT_SECRET`: A secure random string.
+    *   `JWT_EXPIRE`: `30d`
+    *   `NODE_ENV`: `production`
+
+### 2. Frontend (Vercel)
+1.  Connect your repository to [Vercel](https://vercel.com).
+2.  **Framework Preset:** Vite
+3.  **Root Directory:** `.` (Keep it at the base of the monorepo)
+4.  **Build Command:** `npm run build`
+5.  **Output Directory:** `client/dist`
+6.  **Deployment Config:** Ensure `vercel.json` exists in the root folder as provided.
+
+---
+
 ## 📂 Project Structure
 
 ```bash

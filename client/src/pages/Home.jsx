@@ -13,7 +13,7 @@ const Home = () => {
   const [location, setLocation] = useState(sessionStorage.getItem('hb_location') || '');
   const [visibleCount, setVisibleCount] = useState(8);
 
-  const filteredEvents = events.filter(event => event.image);
+  const filteredEvents = events;
   const displayedEvents = filteredEvents.slice(0, visibleCount);
 
   const categories = ['Music', 'Tech', 'Workshop', 'Conference', 'Sports', 'Food', 'Other'];

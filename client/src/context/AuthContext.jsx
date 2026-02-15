@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
         try {
           const res = await axios.get('/api/auth/me');
           if (res.data.success) {
-            setUser(res.data.data);
+            setUser(res.data.user);
           } else {
             // Token might be invalid/expired
             logout();

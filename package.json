@@ -1,0 +1,13 @@
+{
+    "name": "bellcrop-event-management",
+    "private": true,
+    "workspaces": [
+        "client",
+        "server"
+    ],
+    "scripts": {
+        "client-install": "npm install --prefix client",
+        "server-install": "npm install --prefix server",
+        "build": "npm run client-install && npm run build --prefix client"
+    }
+}
